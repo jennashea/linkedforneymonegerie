@@ -85,8 +85,53 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     
     // Private helper methods
     // -----------------------------------------------------------
-
-    // TODO: Your helper methods here!
+    
+    private int findIndex(String text) {
+        ForneymonType current = head;
+        for (int i = 0; i < typeSize; i++) {
+            if (current.type.equals(text)) {
+                return i;
+            }
+            current = current.next; 
+        }
+        return -1;
+    }
+    
+    private ForneymonType findType(String text) {
+        ForneymonType current = head;
+        for (int i = 0; i < typeSize; i++) {
+            if (current.type.equals(text)) {
+                return current;
+            }
+            current = current.next; 
+        }
+        return null;
+    }
+    
+    private ForneymonType findTypeByIndex(int index) {
+        ForneymonType current = head;
+        for (int i = 0; i <= index; i++) {
+            current = current.next; 
+        }
+        return current; 
+    }
+    
+    private boolean insertForneymon (String text, int count) {
+        ForneymonType typeMon = findType(text);
+        // Case: new string, so add new ForneymonType
+        if (type == null) {
+            findTypeByIndex(typeSize-1).next = new ForneymonType(text, count);
+            size++;
+            typeSize++;
+            return true;
+            
+        // Case: existing string, so update count
+        } else {
+            size++;
+            typeMon.count++;
+            return false;
+        }
+    }
     
     
     // Inner Classes
