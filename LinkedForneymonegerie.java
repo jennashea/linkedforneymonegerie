@@ -35,7 +35,7 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     }
     
     public boolean collect (String toAdd) {
-        throw new UnsupportedOperationException();
+        return insertForneymon(toAdd, 1);
     }
     
     public boolean release (String toRemove) {
