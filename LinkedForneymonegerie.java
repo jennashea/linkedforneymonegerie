@@ -13,7 +13,10 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     // Constructor
     // -----------------------------------------------------------
     LinkedForneymonegerie () {
-        // TODO
+        head = null;
+        size = 0;
+        typeSize = 0;
+        modCount = 0;
     }
     
     
