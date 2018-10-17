@@ -23,15 +23,15 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     // Methods
     // -----------------------------------------------------------
     public boolean empty () {
-        throw new UnsupportedOperationException();
+        return size == 0;
     }
     
     public int size () {
-        throw new UnsupportedOperationException();
+        return size;
     }
     
     public int typeSize () {
-        throw new UnsupportedOperationException();
+        return typeSize;
     }
     
     public boolean collect (String toAdd) {
