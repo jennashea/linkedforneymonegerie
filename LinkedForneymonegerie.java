@@ -1,10 +1,7 @@
-package linked_forneymonegerie;
-
-import java.util.NoSuchElementException;
+package linkedforneymonegerie;
 
 public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
-
-    // Fields
+	 // Fields
     // -----------------------------------------------------------
     private ForneymonType head;
     private int size, typeSize, modCount;
@@ -39,35 +36,94 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     }
     
     public boolean release (String toRemove) {
-        throw new UnsupportedOperationException();
+        return releaseForneymon(toRemove, 1);
     }
     
     public void releaseType (String toNuke) {
-        throw new UnsupportedOperationException();
+    	ForneymonType toRidOf = findType(toNuke);
+    	if (toRidOf != null) {
+    		modCount++;
+    	}
+    	size-= toRidOf.count;
+        remove(toNuke);
     }
     
     public int countType (String toCount) {
-        throw new UnsupportedOperationException();
+    	if (findType(toCount) == null) {
+    		return 0;
+    	}
+        return findType(toCount).count;
     }
     
     public boolean contains (String toCheck) {
-        throw new UnsupportedOperationException();
+        return (findType(toCheck)!= null);
     }
     
     public String rarestType () {
-        throw new UnsupportedOperationException();
+    	String rarest = null;
+        int lowestCount = 0;
+        if (this.empty()) {
+        	return null;
+        }
+        ForneymonType currentType = head;
+        for (int i = 0; i < typeSize; i++) {            
+            if (currentType.count <= lowestCount || rarest == null) {
+                lowestCount = currentType.count;
+                rarest = currentType.type;
+            }
+            currentType = currentType.next;
+        }
+        return rarest;
     }
     
     public LinkedForneymonegerie clone () {
-        throw new UnsupportedOperationException();
+        LinkedForneymonegerie dolly = new LinkedForneymonegerie();
+        if (empty()) {
+            return dolly;
+        }
+        dolly.size = size;
+        dolly.typeSize = typeSize;
+        dolly.head = new ForneymonType(head.type, head.count);
+        ForneymonType current = head;
+        ForneymonType dollyCurrent = dolly.head;
+        for (int i = 0; i < typeSize; i++) {
+            if (current.next != null) {
+            	dollyCurrent.next = new ForneymonType(current.next.type, current.next.count);
+            	dollyCurrent.next.prev = dollyCurrent;
+            	dollyCurrent = dollyCurrent.next;
+                current = current.next;
+            }
+            
+        }
+        return dolly;
+    }
+    
+    public String toString () {
+        String[] result = new String[typeSize];
+        ForneymonType current = head;
+        for (int i = 0; i < typeSize; i++) {
+            result[i] = "\"" + current.type + "\": " + current.count;
+            current = current.next;
+        }
+        return "[ " + String.join(", ", result) + " ]";
     }
     
     public void trade (LinkedForneymonegerie other) {
-        throw new UnsupportedOperationException();
+    	ForneymonType tempHead = head;
+        int tempSize = size,
+            tempUniqueSize = typeSize;
+        
+        head = other.head;
+        size = other.size;
+        typeSize = other.typeSize;
+        
+        other.head = tempHead;
+        other.size = tempSize;
+        other.typeSize = tempUniqueSize;
     }
     
     public LinkedForneymonegerie.Iterator getIterator () {
-        throw new UnsupportedOperationException();
+        return new Iterator(this);
     }
     
     
@@ -76,26 +132,32 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     // -----------------------------------------------------------
     
     public static LinkedForneymonegerie diffMon (LinkedForneymonegerie y1, LinkedForneymonegerie y2) {
-        throw new UnsupportedOperationException();
+    	LinkedForneymonegerie result = y1.clone();
+    	ForneymonType y2current = y2.head;
+        for (int i = 0; i < y2.typeSize; i++) {
+            result.releaseForneymon(y2current.type, y2current.count);
+            y2current = y2current.next;
+        }
+        return result;
     }
     
     public static boolean sameCollection (LinkedForneymonegerie y1, LinkedForneymonegerie y2) {
-        throw new UnsupportedOperationException();
+    	return diffMon(y1, y2).empty() && diffMon(y2, y1).empty();
     }
     
     // Private helper methods
     // -----------------------------------------------------------
     
-    private int findIndex(String text) {
-        ForneymonType current = head;
-        for (int i = 0; i < typeSize; i++) {
-            if (current.type.equals(text)) {
-                return i;
-            }
-            current = current.next; 
-        }
-        return -1;
-    }
+//    private int findIndex(String text) {
+//        ForneymonType current = head;
+//        for (int i = 0; i < typeSize; i++) {
+//            if (current.type.equals(text)) {
+//                return i;
+//            }
+//            current = current.next; 
+//        }
+//        return -1;
+//    }
     
     private ForneymonType findType(String text) {
         ForneymonType current = head;
@@ -111,24 +173,74 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
     private ForneymonType findTypeByIndex(int index) {
         ForneymonType current = head;
         for (int i = 0; i <= index; i++) {
-            current = current.next; 
+        	if (current.next != null) {
+        		current = current.next; 
+        	}
         }
         return current; 
     }
     
+    private void remove(String toRid) {
+    	if (findType(toRid) == null) {
+    		return;
+    	}
+    	ForneymonType toRidOf = findType(toRid);
+    	typeSize--;
+
+    	if (toRidOf.prev != null) {
+    		toRidOf.prev.next = toRidOf.next;
+    	}
+        if (toRidOf .next != null) {
+        	toRidOf.next.prev = toRidOf.prev;
+        }
+        if (toRidOf == head) {
+        	head = head.next;
+        }
+        
+    }
+    
+    
+    
     private boolean insertForneymon (String text, int count) {
         ForneymonType typeMon = findType(text);
         // Case: new string, so add new ForneymonType
-        if (type == null) {
+        modCount++;
+        if (typeMon == null) {
+        	if(this.empty()) {
+        		head = new ForneymonType(text, count);
+        		size+= count;
+                typeSize++;
+        		return true;        		
+        	}
             findTypeByIndex(typeSize-1).next = new ForneymonType(text, count);
-            size++;
+            findTypeByIndex(typeSize).prev = findTypeByIndex(typeSize-1);
+            size+= count;
             typeSize++;
             return true;
             
         // Case: existing string, so update count
         } else {
-            size++;
-            typeMon.count++;
+            size+= count;
+            typeMon.count+= count;
+            return false;
+        }
+    }
+    
+    private boolean releaseForneymon (String text, int count) {
+        ForneymonType typeMon = findType(text);
+        // Case: new string, so add new ForneymonType
+        
+        if (typeMon == null) {
+        	return false;
+            
+        // Case: existing string, so update count
+        } else {
+        	modCount++;
+            typeMon.count-= count;
+            size-= count;
+            if (typeMon.count <= 0) {
+            	remove(text);
+            }
             return false;
         }
     }
@@ -141,33 +253,49 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
         LinkedForneymonegerie owner;
         ForneymonType current;
         int itModCount;
+        int typeCount;
         
         Iterator (LinkedForneymonegerie y) {
-            // TODO
+            owner = y;
+            current = y.head;
+            itModCount = y.modCount;
+            typeCount = 1;
         }
         
         public boolean hasNext () {
-            throw new UnsupportedOperationException();
+            return (current.next != null) && this.isValid();
         }
         
         public boolean hasPrev () {
-            throw new UnsupportedOperationException();
+        	return (current.prev != null) && this.isValid();
         }
         
         public boolean isValid () {
-            throw new UnsupportedOperationException();
+        	return (itModCount == owner.modCount);
         }
         
         public String getType () {
-            throw new UnsupportedOperationException();
+            return (this.isValid()) ? current.type : null;
         }
 
         public void next () {
-            throw new UnsupportedOperationException();
+            typeCount++;
+            if (typeCount > current.count) {
+            	if (hasNext()) {
+            		current = current.next;
+            	}
+            	typeCount = 1; 
+            }
         }
         
         public void prev () {
-            throw new UnsupportedOperationException();
+        	typeCount--;
+            if (typeCount < 1) {
+            	if (hasPrev()) {
+            		current = current.prev;
+            	}
+            	typeCount = current.count; 
+            }
         }
         
         public void replaceAll (String toReplaceWith) {
@@ -186,5 +314,4 @@ public class LinkedForneymonegerie implements LinkedForneymonegerieInterface {
             count = c;
         }
     }
-    
 }
